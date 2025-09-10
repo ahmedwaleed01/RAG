@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends , FastAPI, UploadFile , status
+from fastapi import APIRouter, Depends , FastAPI, UploadFile , status,Request
 from fastapi.responses import JSONResponse
 from helpers import get_settings, Settings
 from controllers import DataController,ProcessController
 import aiofiles
-from models import ResponeseEnum
+from models import ResponeseEnum,ProjectModel
 from .schemas.data import ProcessRequest
 
 data_router = APIRouter(
@@ -12,9 +12,11 @@ data_router = APIRouter(
 )
 
 @data_router.post("/upload/{project_id}")
-async def upload_data(project_id: str, file: UploadFile,
+async def upload_data(request:Request,project_id: str, file: UploadFile,
                        app_settings: Settings = Depends(get_settings)):
     
+    project_model = ProjectModel(db_client=request.app.db_client)
+    project = await project_model.get_project_or_create_one(project_id=project_id)
     # validate file type
     data_controller = DataController()
 
@@ -45,7 +47,8 @@ async def upload_data(project_id: str, file: UploadFile,
     return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
-                "file_id": file_id
+                "file_id": file_id,
+                "project_id": str(project.id)
             }
         )
 @data_router.post("/process/{project_id}")
