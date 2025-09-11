@@ -5,9 +5,31 @@ from .enums import DatabaseEnum
 
 class ProjectModel(BaseDataModel):
 
+    _instance = None
+
     def __init__(self, db_client):
         super().__init__(db_client)
         self.collection = self.db_client[DatabaseEnum.COLLECTION_PROJECT.value]
+    
+    @classmethod
+    async def create_instance(cls, db_client):
+        if cls._instance is None:
+            instance = cls(db_client)
+            await instance.init_collection()
+            cls._instance = instance
+        return cls._instance
+    
+    async def init_collection(self):
+        all_collections = await self.db_client.list_collection_names()
+        if DatabaseEnum.COLLECTION_PROJECT.value not in all_collections:
+            self.collection = self.db_client[DatabaseEnum.COLLECTION_PROJECT.value]
+            indexes = Project.get_indexes()
+            for index in indexes:
+                await self.collection.create_index(
+                    index['key'],
+                    name = index['name'],
+                    unique = index['unique'],
+                )
 
     async def create_project(self, project: Project):
         result  =await self.collection.insert_one(project.dict(by_alias=True, exclude_unset=True))
