@@ -1,8 +1,7 @@
 from enum  import Enum
 
 
-class LLMEnum(Enum):
-
+class LLMProviderType(Enum):
     OPENAI = "OPENAI"
     COHERE = "COHERE"
 
