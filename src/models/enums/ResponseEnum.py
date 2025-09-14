@@ -9,3 +9,4 @@ class ResponeseEnum(Enum):
     FILE_UPLOAD_FAILED = "file_upload_failed"
 
     FILE_PROCESS_FAILED ="file_process_failed"
+    NO_FILE_TO_PROCESS = "no_file_to_process"

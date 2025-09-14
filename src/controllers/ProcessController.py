@@ -20,6 +20,10 @@ class ProcessController(BaseController):
         file_extension = self.get_fileExtension(file_id)
         file_path = os.path.join(self.project_path
                                  ,file_id)
+        
+        if os.path.exists(file_path) is False:
+            return None
+
         if file_extension == ProcessEnum.TXT.value:
             return TextLoader(file_path, encoding='utf8')
         elif file_extension == ProcessEnum.PDF.value:
