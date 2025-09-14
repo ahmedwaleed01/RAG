@@ -29,8 +29,9 @@ class OpenAiProvider(LLMInterface):
 
         self.logger = logging.getLogger(__name__)
 
-    def set_generation_model(self, model_id: str):
+    def set_generation_model(self, model_id: str, embedding_size: int ):
         self.generation_model_id = model_id
+        self.embedding_size = embedding_size
 
  
     def set_embedding_model(self, model_id: str):
@@ -65,7 +66,7 @@ class OpenAiProvider(LLMInterface):
 
         return response.choices[0].message["content"]
 
-    def embed_text(self, text:str):
+    def embed_text(self, text:str, document_type: str = None):
 
         is_valid = self.validate_model()
 
@@ -74,7 +75,7 @@ class OpenAiProvider(LLMInterface):
         
         response = self.client.embeddings.create(
             model = self.embedding_model_id,
-            input = text
+            input = self.process_text(text)
         )
 
         if not response or not response.data or len(response.data) == 0 or not response.data[0].embedding:
@@ -97,12 +98,12 @@ class OpenAiProvider(LLMInterface):
     def validate_model(self):
         if self.client is None:
             self.logger.error("OpenAI client is not initialized.")
-    
+            return None
         if self.generation_model_id is None:
             self.logger.error("Generation model for OpenAI was not set")
-
+            return None
         if self.embedding_model_id is None:
             self.logger.error("Embedding model is not set.")
-
-        return None
+            return None
+        return True
 
