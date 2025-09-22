@@ -30,7 +30,7 @@ class QdrantDBProvider(VectorDBInterface):
         self.client = None
 
     def is_collection_exist(self, collection_name: str) -> bool:
-        return self.client.collection_exists(collection_name="{collection_name}")
+        return self.client.collection_exists(collection_name=collection_name)
 
     def list_all_collections(self) -> List:
         return self.client.get_collections()
@@ -40,13 +40,16 @@ class QdrantDBProvider(VectorDBInterface):
 
     def delete_collection(self, collection_name: str):
         if self.is_collection_exist(collection_name):
+            print("eh el kalaam kdddddddddda ")
             return self.client.delete_collection(collection_name=collection_name)
+        return None
 
     def create_collection(self, collection_name: str, 
                                 embedding_size: int,
                                 reset: bool = False):
         if reset:
-            _ = self.delete_collection(collection_name=collection_name)
+            deleted = self.delete_collection(collection_name=collection_name)
+            if not deleted : self.logger.error(f"Error Deleting collection: {collection_name}")
         
         if not self.is_collection_exist(collection_name):
             _ = self.client.create_collection(
@@ -73,7 +76,7 @@ class QdrantDBProvider(VectorDBInterface):
                 collection_name=collection_name,
                 records=[
                     models.Record(
-                        ### mafroud hena fi id ??
+                        id = [record_id],
                         vector=vector,
                         payload={
                             "text":text ,"metadata": metadata
@@ -103,10 +106,11 @@ class QdrantDBProvider(VectorDBInterface):
             texts_batch = texts [i:end_index]
             vectors_batch = vectors[i:end_index]
             metadata_batch =metadata[i:end_index]
+            record_ids_batch = record_ids[i:end_index]
 
             batch_records = [
                 models.Record(
-                    ### mafroud hena fi id ??
+                    id= record_ids_batch[j],
                     vector=vectors_batch[j],
                     payload={
                         "text":texts_batch[j] ,"metadata": metadata_batch[j]

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     MONGODB_DATABASE: str
 
     EMBEDDING_BACKEND: str
+    GENERATION_BACKEND: str
 
     OPENAI_API_KEY: str = None
     OPENAI_API_URL: str = None
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
     GENERATION_DEFAULT_MAX_TOKENS: int = None
     GENERATION_DEFAULT_TEMPERATURE: float = None
 
+    VECTOR_DB_BACKEND: str = None
     VECTOR_DB_PATH: str = None
     VECTOR_DB_DISTANCE_METHOD: str = None
 

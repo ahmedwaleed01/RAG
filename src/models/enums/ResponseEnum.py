@@ -10,3 +10,7 @@ class ResponeseEnum(Enum):
 
     FILE_PROCESS_FAILED ="file_process_failed"
     NO_FILE_TO_PROCESS = "no_file_to_process"
+
+    PROJECT_NOT_FOUND = "project_not_found"
+    VECTOR_DB_ERROR = "error_vector_db_insertion"
+    VECTOR_DB_SUCCESS = "success_vector_db_insertion"

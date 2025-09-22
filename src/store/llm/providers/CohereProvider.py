@@ -21,9 +21,7 @@ class CohereProvider(LLMInterface):
 
         self.embedding_size = None
 
-        self.client = cohere.client(
-            api_key=self.api_key
-        )
+        self.client = cohere.Client(api_key= api_key)
 
         self.logger = logging.getLogger(__name__)
 
@@ -55,7 +53,7 @@ class CohereProvider(LLMInterface):
         return response.text
     
     def embed_text(self, text:str,document_type: str = None):
-        is_valid = self.validate_model()
+        is_valid = self.validate_model_embedding()
 
         if is_valid is None:
             return None
@@ -95,7 +93,24 @@ class CohereProvider(LLMInterface):
         
         return True
     
+    def validate_model_embedding(self):
+        if self.client is None:
+            self.logger.error("Cohere client is not initialized.")
+            return None
+
+        if self.embedding_model_id is None:
+            self.logger.error("Embedding model is not set.")
+            return None
+        
+        return True
+
+    
     def process_text(self, text: str):
         return text[:self.default_input_max_characters].strip()
-
+    
+    def construct_prompt(self, prompt: str, role: str):
+        return {
+            "role": role,
+            "text": self.process_text(prompt)
+        }
 

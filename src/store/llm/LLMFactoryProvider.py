@@ -1,6 +1,6 @@
 from .providers import CohereProvider, OpenAiProvider
 from .LLMEnums import LLMProviderType
-from ...helpers.config import Settings
+from helpers import Settings
 
 class LLMFactoryProvider:
 
