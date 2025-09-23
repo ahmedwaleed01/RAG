@@ -2,6 +2,7 @@ from .BaseController import BaseController
 from models.db_schemas import Project,DataChunk
 from store.llm.LLMEnums import DocumentType
 from typing import List
+import json
 
 
 class NLPController(BaseController):
@@ -55,3 +56,23 @@ class NLPController(BaseController):
 
 
         return True
+
+    def search_vector_db_collection(self, project: Project, text: str, limit : int = 5):
+
+        # get collection name
+        collection_name = self.create_collection_name(project_id= project.project_id)
+
+        # get text embedding vector
+        vector = self.embedding_client.embed_text(text= text, document_type = DocumentType.QUERY.value )
+
+        if not vector or len(vector) == 0:
+            return None
+        
+        results = self.vectordb_client.search_by_vector(collection_name= collection_name, vector= vector, limit = limit)
+
+        if not results:
+            return None
+
+        return json.loads(
+            json.dumps(results, default=lambda x: x.__dict__)
+        )

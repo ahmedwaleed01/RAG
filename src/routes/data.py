@@ -86,7 +86,6 @@ async def process_data(request:Request,project_id: str, process_request: Process
 
     project_files_ids = {}
 
-
     if  process_request.file_id:
         asset = await asset_model.get_asset_by_name_and_project_id(
             asset_name=process_request.file_id,

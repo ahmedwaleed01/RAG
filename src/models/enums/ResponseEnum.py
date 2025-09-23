@@ -14,3 +14,5 @@ class ResponeseEnum(Enum):
     PROJECT_NOT_FOUND = "project_not_found"
     VECTOR_DB_ERROR = "error_vector_db_insertion"
     VECTOR_DB_SUCCESS = "success_vector_db_insertion"
+
+    NO_SEARCH_VECTOR_DB = "no_search_result_found"

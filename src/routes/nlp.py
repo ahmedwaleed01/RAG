@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from helpers import get_settings, Settings
 import logging
 from bson.objectid import ObjectId
-from .schemas import PushRequest
+from .schemas import PushRequest , SearchRequest
 
 
 logger = logging.getLogger('uvicorn.error')
@@ -75,3 +75,72 @@ async def index_project(request:Request, project_id:str, push_request:PushReques
                 "message" : ResponeseEnum.VECTOR_DB_SUCCESS.value
             }
         )
+
+@nlp_router.get("/index/info/{project_id}")
+async def get_index_info(request:Request, project_id:str):
+
+    project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
+    project = await project_model.get_project_or_create_one(project_id=project_id)
+
+    if not project :
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": ResponeseEnum.PROJECT_NOT_FOUND.value
+            }
+        )
+
+    nlp_controller = NLPController(
+        embedding_client= request.app.embedding_client,
+        generative_client= request.app.generative_client,
+        vectordb_client= request.app.vectordb_client
+    )
+
+    collection_info = nlp_controller.get_vector_db_collection_info( project=project )
+
+    return JSONResponse(
+        content={
+          "collection_info" : collection_info.dict()
+        }
+    )
+
+@nlp_router.post("/index/search/{project_id}")
+async def search_index(request: Request, project_id:str , search_request:SearchRequest ):
+
+    project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
+    project = await project_model.get_project_or_create_one(project_id=project_id)
+
+    if not project :
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": ResponeseEnum.PROJECT_NOT_FOUND.value
+            }
+        )
+    
+    
+    nlp_controller = NLPController(
+        embedding_client= request.app.embedding_client,
+        generative_client= request.app.generative_client,
+        vectordb_client= request.app.vectordb_client
+    )
+    
+    search_result = nlp_controller.search_vector_db_collection(
+        project= project,
+        text = search_request.text,
+        limit= search_request.limit
+    )
+
+    if not search_result:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": ResponeseEnum.NO_SEARCH_VECTOR_DB.value
+            }
+        )
+    
+    return JSONResponse(
+        content={
+          "search_result" : search_result
+        }
+    )
