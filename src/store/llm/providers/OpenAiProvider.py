@@ -29,14 +29,14 @@ class OpenAiProvider(LLMInterface):
 
         self.logger = logging.getLogger(__name__)
 
-    def set_generation_model(self, model_id: str, embedding_size: int ):
+    def set_generation_model(self, model_id: str):
         self.generation_model_id = model_id
-        self.embedding_size = embedding_size
+      
 
  
-    def set_embedding_model(self, model_id: str):
+    def set_embedding_model(self, model_id: str, embedding_size: int):
         self.embedding_model_id = model_id
-
+        self.embedding_size = embedding_size
 
     def generate_text(self, prompt: str, max_output_tokens: int=None,temperature: int=None ,chat_history: list = []):
         

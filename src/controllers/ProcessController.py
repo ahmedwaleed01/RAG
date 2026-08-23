@@ -35,7 +35,7 @@ class ProcessController(BaseController):
         file_loader = self.get_file_loader(file_id)
         return file_loader.load() if file_loader else None
 
-    def process_file_content(self,file_content:list,chunk_size: int=100,overlap_size: int=20):
+    def process_file_content(self,file_content:list,chunk_size: int=1000,overlap_size: int=200):
         
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
@@ -58,9 +58,4 @@ class ProcessController(BaseController):
             metadatas=file_content_meta
         )
         return chunks
-
-    
-  
-
-
     

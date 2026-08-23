@@ -45,11 +45,11 @@ async def index_project(request:Request, project_id:str, push_request:PushReques
 
     while chunks_found:
         chunks_page = await chunk_model.get_project_chunks(project_id= project.id, page_number= page_number)
-
+       
         if not chunks_page or len(chunks_page) == 0:
             chunks_found = False
             break
-
+        
         page_number +=1
 
         chunk_ids = list(range(indx, indx + len(chunks_page)))
@@ -70,11 +70,11 @@ async def index_project(request:Request, project_id:str, push_request:PushReques
                 }
             )
         
-        return JSONResponse(
-            content={
-                "message" : ResponeseEnum.VECTOR_DB_SUCCESS.value
-            }
-        )
+    return JSONResponse(
+        content={
+            "message" : ResponeseEnum.VECTOR_DB_SUCCESS.value
+        }
+    )
 
 @nlp_router.get("/index/info/{project_id}")
 async def get_index_info(request:Request, project_id:str):

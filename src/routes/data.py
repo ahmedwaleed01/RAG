@@ -86,20 +86,24 @@ async def process_data(request:Request,project_id: str, process_request: Process
 
     project_files_ids = {}
 
-    if  process_request.file_id:
+    # If a file_id is present in the process_request, 
+    # it retrieves that specific asset (file) from the database.
+    if  process_request.file_id: 
         asset = await asset_model.get_asset_by_name_and_project_id(
             asset_name=process_request.file_id,
             project_id=project.id
         )
         project_files_ids = { asset.id : process_request.file_id }
     else:
+        # If file_id is not provided,
+        #  it retrieves all files (AssetEnum.ASSET_TYPE_FILE) linked to the project_id.
       
         all_assets = await asset_model.get_all_assets_by_project_id(
             project_id=project.id,
             asset_type=AssetEnum.ASSET_TYPE_FILE.value
             )
         project_files_ids = {asset.id : asset.asset_name for asset in all_assets }
-    
+
     if len(project_files_ids) == 0:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -124,7 +128,7 @@ async def process_data(request:Request,project_id: str, process_request: Process
 
         file_chunks = process_controller.process_file_content(file_content=file_content,
                                                             chunk_size=chunk_size,overlap_size=overlap_size)
-        
+
 
         if  file_chunks is None or len(file_chunks) == 0:
             return JSONResponse(
@@ -144,10 +148,10 @@ async def process_data(request:Request,project_id: str, process_request: Process
             )
             for index, chunk in enumerate(file_chunks)
         ]
-
+   
         chunks_len += await chunk_model.insert_many_chunks(chunks=file_chunks_record)
         proccessed_files += 1
- 
+
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -155,4 +159,4 @@ async def process_data(request:Request,project_id: str, process_request: Process
             "no_of_chunks": chunks_len,
             "no_of_files_processed": proccessed_files
         }
-    )
+    )   
