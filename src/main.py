@@ -4,11 +4,13 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from helpers.config import  get_settings
 from store.llm import LLMFactoryProvider
 from store.vectordb import VectorDBFactoryProvider
+from contextlib import asynccontextmanager
+
 
 app = FastAPI()
 
-@app.on_event("startup")
-async def start_up():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     settings = get_settings()
 
     app.mongo_con = AsyncIOMotorClient(settings.MONGODB_URL)
@@ -26,10 +28,14 @@ async def start_up():
     app.vectordb_client = vectordb_factory.create(provider=settings.VECTOR_DB_BACKEND)
     app.vectordb_client.connect()
 
-@app.on_event("shutdown")
-async def shutdown():
+    yield
+
     app.mongo_con.close()
     app.vectordb_client.disconnect()
+
+
+
+app = FastAPI(lifespan=lifespan)
 
     
 app.include_router(base.base_router)
