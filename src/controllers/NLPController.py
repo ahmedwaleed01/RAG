@@ -7,11 +7,12 @@ import json
 
 class NLPController(BaseController):
 
-    def __init__(self, generative_client, embedding_client, vectordb_client):
+    def __init__(self, generative_client, embedding_client, vectordb_client,template_parser):
         super().__init__()
         self.vectordb_client = vectordb_client
         self.embedding_client = embedding_client
         self.generative_client = generative_client
+        self.template_parser = template_parser
 
     def create_collection_name(self, project_id):
         return  f"collection_{project_id}".strip()
@@ -73,6 +74,55 @@ class NLPController(BaseController):
         if not results:
             return None
 
-        return json.loads(
-            json.dumps(results, default=lambda x: x.__dict__)
+        return results
+
+    def answer_rag_question(self, project: Project, text: str, limit : int = 5):
+
+       answer , full_prompt , chat_history = None, None, None
+
+       retreived_results = self.search_vector_db_collection(project= project, text= text, limit = limit)
+
+       if not retreived_results or len(retreived_results) == 0:
+            return None
+
+       # generate answer using generative model
+       system_prompt = self.template_parser.get(
+            group="rag",
+            key="system_prompt",
         )
+
+       document_prompt = "\n".join([
+            self.template_parser.get(
+                group="rag",
+                key="document_prompt",
+                vars={
+                    "doc_no": idx + 1,
+                    "chunk_text": doc.text
+                }
+            )
+            for idx,doc in enumerate(retreived_results)
+        ])
+
+       footer_prompt = self.template_parser.get(
+            group="rag",
+            key="footer_prompt",
+        )
+
+       chat_history = [
+           self.generative_client.construct_prompt(
+               prompt=system_prompt,
+               role=self.generative_client.enums.SYSTEM.value,
+           )
+       ]
+
+       full_prompt = "\n\n".join([
+            document_prompt,
+            footer_prompt
+        ])
+
+       answer = self.generative_client.generate_text(
+           prompt=full_prompt,
+           chat_history=chat_history
+       )
+
+       return answer , full_prompt , chat_history

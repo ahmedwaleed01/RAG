@@ -16,3 +16,6 @@ class ResponeseEnum(Enum):
     VECTOR_DB_SUCCESS = "success_vector_db_insertion"
 
     NO_SEARCH_VECTOR_DB = "no_search_result_found"
+
+    RAG_ANSWER_SUCCESS = "rag_answer_success"
+    RAG_ANSWER_FAILED = "rag_answer_failed"

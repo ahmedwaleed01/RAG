@@ -3,6 +3,7 @@ from qdrant_client import QdrantClient, models
 from ..VectorDBEnums  import VectorDBEnums
 from typing import List
 import logging
+from models.db_schemas import DataRetrieved
 
 
 class QdrantDBProvider(VectorDBInterface):
@@ -133,10 +134,21 @@ class QdrantDBProvider(VectorDBInterface):
 
     def search_by_vector(self, collection_name: str, vector: list, limit: int=5):
         
-        return self.client.search(
+        result= self.client.search(
             collection_name=collection_name,
             query_vector=vector,
             limit=limit
         )
+
+        if not result or len(result) == 0:
+            return None
+
+        return [
+            DataRetrieved(**{
+                "score": res.score,
+                "text": res.payload["text"]
+            })
+            for res in result
+        ]
     
 

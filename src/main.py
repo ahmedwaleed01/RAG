@@ -5,6 +5,7 @@ from helpers.config import  get_settings
 from store.llm import LLMFactoryProvider
 from store.vectordb import VectorDBFactoryProvider
 from contextlib import asynccontextmanager
+from store.llm.templates.template_parser import TemplateParser
 
 
 app = FastAPI()
@@ -27,6 +28,10 @@ async def lifespan(app: FastAPI):
 
     app.vectordb_client = vectordb_factory.create(provider=settings.VECTOR_DB_BACKEND)
     app.vectordb_client.connect()
+
+    app.template_parser = TemplateParser(
+        language=settings.DEFAULT_LANGUAGE,
+        default_language=settings.DEFAULT_LANGUAGE)
 
     yield
 

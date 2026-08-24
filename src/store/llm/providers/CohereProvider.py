@@ -22,6 +22,7 @@ class CohereProvider(LLMInterface):
         self.embedding_size = None
 
         self.client = cohere.Client(api_key= api_key)
+        self.enums = CohereEnums
 
         self.logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class CohereProvider(LLMInterface):
         response = self.client.chat(
             model = self.generation_model_id,
             chat_history = chat_history,
-            messages = self.process_text(prompt),
+            message = self.process_text(prompt), # Changed 'messages' to 'message'
             temperature = temperature,
             max_tokens = max_output_tokens
         )
@@ -87,10 +88,6 @@ class CohereProvider(LLMInterface):
             self.logger.error("Generation model is not set.")
             return None
         
-        if self.embedding_model_id is None:
-            self.logger.error("Embedding model is not set.")
-            return None
-        
         return True
     
     def validate_model_embedding(self):
@@ -110,7 +107,6 @@ class CohereProvider(LLMInterface):
     
     def construct_prompt(self, prompt: str, role: str):
         return {
-            "role": role,
-            "text": self.process_text(prompt)
+            "role": role, 
+            "message": self.process_text(prompt) 
         }
-
