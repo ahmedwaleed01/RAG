@@ -41,7 +41,7 @@ class QdrantDBProvider(VectorDBInterface):
 
     def delete_collection(self, collection_name: str):
         if self.is_collection_exist(collection_name):
-            print("eh el kalaam kdddddddddda ")
+            self.logger.debug(f"Deleting existing collection: {collection_name}")
             return self.client.delete_collection(collection_name=collection_name)
         return None
 
@@ -151,4 +151,3 @@ class QdrantDBProvider(VectorDBInterface):
             for res in result
         ]
     
-
