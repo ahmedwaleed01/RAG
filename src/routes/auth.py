@@ -1,14 +1,11 @@
 from fastapi import APIRouter, Request, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from schemas import Credentials
 from models import UserModel
 from models.db_schemas.user import User
 from helpers.security import hash_password, verify_password, create_access_token
 
 auth_router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-class Credentials(BaseModel):
-    email: EmailStr
-    password: str
 
 @auth_router.post("/register")
 async def register(request: Request, creds: Credentials):
