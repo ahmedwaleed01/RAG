@@ -32,6 +32,8 @@ class Settings(BaseSettings):
 
     DEFAULT_LANGUAGE: str = "en"
 
+    JWT_SECRET: str
+
     class Config:
         env_file = ".env"
         
