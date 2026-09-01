@@ -2,6 +2,8 @@ from helpers import get_settings, Settings
 import os
 import random
 import string
+import re
+from fastapi import HTTPException, status
 
 
 class BaseController:   
@@ -20,6 +22,11 @@ class BaseController:
 
     def generate_random_string(self, length: int=12):
         return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+    
+    def sanitize_id(self, value: str) -> str:
+        if not value or not re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", value):
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid id format")
+        return value
     
     def get_database_path(self, db_name: str):
 

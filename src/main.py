@@ -8,8 +8,6 @@ from contextlib import asynccontextmanager
 from store.llm.templates.template_parser import TemplateParser
 
 
-app = FastAPI()
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
