@@ -10,6 +10,7 @@ from models.db_schemas.asset import Asset
 from .schemas.data import ProcessRequest
 import logging
 from bson.objectid import ObjectId
+from helpers import get_current_user_id
 
 
 logger = logging.getLogger('uvicorn.error')
@@ -21,12 +22,12 @@ data_router = APIRouter(
 
 @data_router.post("/upload/{project_id}")
 async def upload_data(request:Request,project_id: str, file: UploadFile,
-                       app_settings: Settings = Depends(get_settings)):
-    
+                       app_settings: Settings = Depends(get_settings),user_id: ObjectId = Depends(get_current_user_id)):
+  
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
     # validate file type
-    data_controller = DataController()
+    data_controller = DataController() 
 
     is_valid, message = data_controller.validate_file(file)
 
@@ -71,7 +72,7 @@ async def upload_data(request:Request,project_id: str, file: UploadFile,
         )
 @data_router.post("/process/{project_id}")
 async def process_data(request:Request,project_id: str, process_request: ProcessRequest,
-                       app_settings: Settings = Depends(get_settings)):
+                       app_settings: Settings = Depends(get_settings),user_id: ObjectId = Depends(get_current_user_id)):
     
     chunk_size = process_request.chunk_size
     overlap_size = process_request.overlap_size
@@ -80,7 +81,7 @@ async def process_data(request:Request,project_id: str, process_request: Process
     chunk_model = await ChunkModel.create_instance(db_client=request.app.db_client)
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
 
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
 
     asset_model = await AssetModel.create_instance(db_client=request.app.db_client)
 

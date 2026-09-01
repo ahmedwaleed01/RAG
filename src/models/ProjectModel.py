@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from .BaseDataModel import BaseDataModel
 from .db_schemas import Project
 from .enums import DatabaseEnum
@@ -36,11 +38,11 @@ class ProjectModel(BaseDataModel):
         project.id = result.inserted_id
         return project
     
-    async def get_project_or_create_one(self, project_id: str):
-        project = await self.collection.find_one({"project_id": project_id})
+    async def get_project_or_create_one(self, project_id: str, user_id: ObjectId):
+        project =  await self.collection.find_one({"project_id": project_id, "project_owner_id": user_id})
         if project:
             return Project(**project)
-        new_project = Project(project_id=project_id)
+        new_project =Project(project_id=project_id, project_owner_id=user_id)
         created_project = await self.create_project(new_project)
         return created_project
     

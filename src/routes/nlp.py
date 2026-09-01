@@ -8,6 +8,8 @@ from helpers import get_settings, Settings
 import logging
 from bson.objectid import ObjectId
 from .schemas import PushRequest , SearchRequest
+from helpers import get_current_user_id
+
 
 
 logger = logging.getLogger('uvicorn.error')
@@ -18,10 +20,11 @@ nlp_router = APIRouter(
 )
 
 @nlp_router.post("/index/push/{project_id}")
-async def index_project(request:Request, project_id:str, push_request:PushRequest):
+async def index_project(request:Request, project_id:str, push_request:PushRequest
+                        , user_id: ObjectId = Depends(get_current_user_id)):
 
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
 
     if not project :
         return JSONResponse(
@@ -78,10 +81,10 @@ async def index_project(request:Request, project_id:str, push_request:PushReques
     )
 
 @nlp_router.get("/index/info/{project_id}")
-async def get_index_info(request:Request, project_id:str):
+async def get_index_info(request:Request, project_id:str, user_id: ObjectId = Depends(get_current_user_id)):
 
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
 
     if not project :
         return JSONResponse(
@@ -107,10 +110,10 @@ async def get_index_info(request:Request, project_id:str):
     )
 
 @nlp_router.post("/index/search/{project_id}")
-async def search_index(request: Request, project_id:str , search_request:SearchRequest ):
+async def search_index(request: Request, project_id:str , search_request:SearchRequest,user_id: ObjectId = Depends(get_current_user_id)):
 
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
 
     if not project :
         return JSONResponse(
@@ -150,10 +153,10 @@ async def search_index(request: Request, project_id:str , search_request:SearchR
     )
 
 @nlp_router.post("/index/answer/{project_id}")
-async def answer_rag(request: Request, project_id:str , search_request:SearchRequest ):
+async def answer_rag(request: Request, project_id:str , search_request:SearchRequest,user_id: ObjectId = Depends(get_current_user_id)):
 
     project_model = await ProjectModel.create_instance(db_client=request.app.db_client)
-    project = await project_model.get_project_or_create_one(project_id=project_id)
+    project = await project_model.get_project_or_create_one(project_id=project_id,user_id=user_id)
 
     if not project :
         return JSONResponse(

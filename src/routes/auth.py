@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException, status
-from schemas import Credentials
+from .schemas import Credentials
 from models import UserModel
 from models.db_schemas.user import User
 from helpers.security import hash_password, verify_password, create_access_token
